@@ -16,7 +16,7 @@ class Menu extends BudgetManagement{
             String choice = IO.readln("Vänligen välj ett av alternativen: ");
 
             switch (choice) {
-                case "1" -> repository.addTransaction(inserNewTransaction());
+                case "1" -> subMenuWichTypeOfTransaction();
                 case "2" -> IO.println("Not yet implemented");
                 case "3" -> IO.println("Not yet implemented");
                 case "4" -> IO.println("Not yet implemented");
@@ -25,6 +25,28 @@ class Menu extends BudgetManagement{
                 default -> IO.println("Ogiltigt val, försök igen.");
 
             }
+
         } while (run);
+    }
+    static void subMenuWichTypeOfTransaction() {
+        Boolean run = true;
+        do{
+            IO.println("1. för att lägga till en inkomst");
+            IO.println("2. för att lägga till en utgift");
+
+            String choice = IO.readln("välj ett av alternativen: ");
+
+            switch (choice) {
+                case "1" -> {
+                    repository.addTransaction(inserNewTransactionIncome());
+                    run = false;
+                }
+                case "2" -> {
+                    repository.addTransaction(inserNewTransactioExpense());
+                    run = false;
+                }
+                default -> IO.println("Ogiltigt val, försök igen.");
+            }
+        }while(run);
     }
 }

@@ -1,0 +1,7 @@
+package budgethanteraren;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class RepositoryTest {
+
+}
