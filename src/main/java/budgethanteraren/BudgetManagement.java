@@ -17,22 +17,75 @@ public class BudgetManagement {
     static Transaction inserNewTransactionIncome() {
          LocalDate date = returndate();
          Category type = returnCategory();
-         BigDecimal amount = new BigDecimal("1000");
+         BigDecimal amount = returnAmount();
          TransactionType  transactionType = TransactionType.INCOME;
          return new Transaction(date,type,amount,transactionType);
     }
+
+    private static BigDecimal returnAmount() {
+        while (true) {
+            try {
+                String amountInput = IO.readln("Ange belopp: ");
+                return new BigDecimal(amountInput);
+            } catch (NumberFormatException e) {
+                IO.println("Ogiltigt belopp. Försök igen.");
+            }
+        }
+    }
+
     static Transaction inserNewTransactioExpense() {
         LocalDate date = returndate();
         Category type = returnCategory();
-        BigDecimal amount = new BigDecimal("1000");
-        TransactionType  transactionType = TransactionType.EXPENSE;
-        return new Transaction(date,type,amount,transactionType);
+        do{
+            BigDecimal amount = returnAmount();//TODO fixa så att det inte går att lägga till ett negativt tal.
+            if (checkIfBalcaneGoesUnderZero(amount))
+                return new Transaction(date,type,amount,TransactionType.EXPENSE);
+            else
+                IO.println("Beloppet kan inte överstiga saldot på kontot.");
+        }while(true);
     }
 
-    private static Category returnCategory() {
-        return Category.HOME_AND_LIVING;
-    }
+   static boolean checkIfBalcaneGoesUnderZero(BigDecimal bigDecimal) {
+        BigDecimal sum = repository.getTransactions().stream()
+                .map(Transaction::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+       return bigDecimal.subtract(sum).compareTo(BigDecimal.ZERO) <= 0;
+   }
 
+    static Category returnCategory() {
+        while (true) {
+            IO.println("1. Hem och hushåll");
+            IO.println("2. Sparande");
+            IO.println("3. Nöje");
+            IO.println("4. Lön");
+            IO.println("5. Resor");
+            IO.println("6. Annat");
+
+            String choice = IO.readln("Välj kategori: ");
+
+             switch (choice) {
+                 case "1" -> {
+                     return Category.HOME_AND_LIVING;
+                 }
+                 case "2" -> {
+                     return Category.SAVINGS;
+                 }
+                 case "3" -> {
+                     return Category.AMUSEMENT;
+                 }
+                 case "4" -> {
+                     return Category.SALARY;
+                 }
+                 case "5" -> {
+                     return Category.TRAVEL;
+                 }
+                 case "6" -> {
+                     return Category.OTHER;
+                 }
+                 default -> IO.println("Ogiltigt val, försök igen.");
+            };
+        }
+    }
     static LocalDate returndate(){
 
         while (true){
