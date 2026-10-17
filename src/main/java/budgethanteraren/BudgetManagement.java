@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class BudgetManagement {
-    static Repository<Transaction> repository = new Repository<>();
+     static Repository<Transaction> repository = new Repository<>();
 
     void main() {
         welcome();
@@ -19,7 +19,7 @@ public class BudgetManagement {
          Category type = returnCategory();
          BigDecimal amount = returnAmount();
          TransactionType  transactionType = TransactionType.INCOME;
-         return new Transaction(date,type,amount,transactionType);
+         return new Transaction(date,type,amount.abs(),transactionType);
     }
 
     private static BigDecimal returnAmount() {
@@ -37,9 +37,9 @@ public class BudgetManagement {
         LocalDate date = returndate();
         Category type = returnCategory();
         do{
-            BigDecimal amount = returnAmount();//TODO fixa så att det inte går att lägga till ett negativt tal.
-            if (checkIfBalcaneGoesUnderZero(amount))
-                return new Transaction(date,type,amount,TransactionType.EXPENSE);
+            BigDecimal amount = returnAmount();
+            if (checkIfBalcaneGoesUnderZero(amount)) //abs() ser till att det inte blir ett negativt tal.
+                return new Transaction(date,type,amount.abs(),TransactionType.EXPENSE);
             else
                 IO.println("Beloppet kan inte överstiga saldot på kontot.");
         }while(true);
@@ -117,7 +117,7 @@ public class BudgetManagement {
                 date = LocalDate.parse(input);
             } catch (DateTimeParseException e) {
                 // Fångar upp felaktiga format eller ogiltiga datum
-                System.out.println("Felaktigt format eller ogiltigt datum. Försök igen.");
+                IO.println("Felaktigt format eller ogiltigt datum. Försök igen.");
             }
         }
         return date;
