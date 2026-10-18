@@ -22,7 +22,7 @@ class RepositoryTest {
     }
 
     @Test
-    void returnBalanceShouldReturnCorrectBalance() {
+    void returnBalanceShouldReturnCorrectBa() {
         Repository<Transaction> repository = new Repository<>();
         repository.addTransaction(new Transaction
                 (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(100),TransactionType.INCOME));

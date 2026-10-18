@@ -36,7 +36,11 @@ public class BudgetManagement {
         }
     }
 
-    static void inserNewTransactioExpense() {//TODO fixa så att man inte fastnar i en oändlig loop om man inte har nåt på kontot.
+    static void inserNewTransactioExpense() {
+        if(returnBalance().compareTo(BigDecimal.ZERO) == 0){
+            IO.println("Du har inget saldo på kontot. Försök igen.");
+            return;
+        }
         LocalDate date = returndate();
         Category type = returnCategory();
         do{
@@ -144,5 +148,10 @@ public class BudgetManagement {
         IO.println("------------------------------------------");
         IO.println("Välkommen till Budgethanteraren!");
         IO.println("------------------------------------------");
+    }
+
+
+    public static void addTransaction(Transaction transaction){
+        repository.addTransaction(transaction);
     }
 }
