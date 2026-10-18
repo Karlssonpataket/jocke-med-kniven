@@ -18,8 +18,8 @@ class Menu extends BudgetManagement{
             switch (choice) {
                 case "1" -> subMenuWichTypeOfTransaction();
                 case "2" -> printTransactions();
-                case "3" -> IO.println(returnBalance());
-                case "4" -> IO.println("Not yet implemented");
+                case "3" -> printBalanceAndTransactions();
+                case "4" -> IO.println(returnBalance());
                 case "5" -> IO.println("Not yet implemented");
                 case "E", "e" -> run = false;
                 default -> IO.println("Ogiltigt val, försök igen.");

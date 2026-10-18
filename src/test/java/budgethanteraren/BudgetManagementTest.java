@@ -12,7 +12,7 @@ class BudgetManagementTest {
     @Test
     void returnBalanceShouldReturnCorrectBalance() {
         BudgetManagement.clearTransactions();
-        
+
          BudgetManagement.addTransaction(new Transaction
                     (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(100),TransactionType.INCOME));
          BudgetManagement.addTransaction(new Transaction
@@ -35,7 +35,16 @@ class BudgetManagementTest {
     }
 
     @Test
-    void returnBalance1() {
+    void FiltertransactionsShouldReturntheRightCategoryofTransactions() {
+        BudgetManagement.clearTransactions();
+        BudgetManagement.addTransaction(new Transaction
+                    (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(100),TransactionType.INCOME));
+         BudgetManagement.addTransaction(new Transaction
+                    (LocalDate.now(),Category.OTHER,new BigDecimal(50),TransactionType.EXPENSE));
+         BudgetManagement.addTransaction(new Transaction
+                    (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(50),TransactionType.EXPENSE));
+
+         assertEquals(2,BudgetManagement.filterTransactions(Category.HOME_AND_LIVING).size());
 
     }
 }
