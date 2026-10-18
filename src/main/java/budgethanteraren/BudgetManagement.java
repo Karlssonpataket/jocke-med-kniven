@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class BudgetManagement {
-     static Repository<Transaction> repository = new Repository<>();
+     private static Repository<Transaction> repository = new Repository<>();
 
     void main() {
         welcome();
@@ -14,43 +14,57 @@ public class BudgetManagement {
         IO.println(repository.getTransactions());
 
     }
-    static Transaction inserNewTransactionIncome() {
+    static void inserNewTransactionIncome() {
          LocalDate date = returndate();
          Category type = returnCategory();
          BigDecimal amount = returnAmount();
          TransactionType  transactionType = TransactionType.INCOME;
-         return new Transaction(date,type,amount.abs(),transactionType);
+         repository.addTransaction( new Transaction(date,type,amount,transactionType));
     }
 
-    private static BigDecimal returnAmount() {
+     static BigDecimal returnAmount() {
         while (true) {
             try {
                 String amountInput = IO.readln("Ange belopp: ");
-                return new BigDecimal(amountInput);
+                if(Integer.parseInt(amountInput) > 0)
+                    return new BigDecimal(amountInput);
+                else
+                    IO.println("Ogiltigt belopp. Försök igen.");
             } catch (NumberFormatException e) {
                 IO.println("Ogiltigt belopp. Försök igen.");
             }
         }
     }
 
-    static Transaction inserNewTransactioExpense() {
+    static void inserNewTransactioExpense() {//TODO fixa så att man inte fastnar i en oändlig loop om man inte har nåt på kontot.
         LocalDate date = returndate();
         Category type = returnCategory();
         do{
             BigDecimal amount = returnAmount();
-            if (checkIfBalcaneGoesUnderZero(amount)) //abs() ser till att det inte blir ett negativt tal.
-                return new Transaction(date,type,amount.abs(),TransactionType.EXPENSE);
+            if (checkIfBalanceGoesUnderZero(amount)) {//kollar så att summan inte överstiger saldot på kontot.
+                repository.addTransaction(new Transaction(date, type, amount, TransactionType.EXPENSE));
+                break;
+            }
             else
                 IO.println("Beloppet kan inte överstiga saldot på kontot.");
         }while(true);
     }
+    static boolean checkIfBalanceGoesUnderZero(BigDecimal bigDecimal) {
 
-   static boolean checkIfBalcaneGoesUnderZero(BigDecimal bigDecimal) {
-        BigDecimal sum = repository.getTransactions().stream()
+       return bigDecimal.subtract(returnBalance()).compareTo(BigDecimal.ZERO) <= 0;
+   }
+   static BigDecimal returnBalance() {
+        BigDecimal sumIncome = repository.getTransactions().stream()
+                .filter( n -> n.type() == TransactionType.INCOME)
                 .map(Transaction::amount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-       return bigDecimal.subtract(sum).compareTo(BigDecimal.ZERO) <= 0;
-   }
+        BigDecimal sumExpense = repository.getTransactions().stream()
+                .filter( n -> n.type() == TransactionType.EXPENSE)
+                .map(Transaction::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return sumIncome.subtract(sumExpense) ;
+    }
 
     static Category returnCategory() {
         while (true) {
@@ -106,7 +120,7 @@ public class BudgetManagement {
         }
     }
 
-    private static LocalDate dateInputFromUserWhenNotNow() {
+    static LocalDate dateInputFromUserWhenNotNow() {
         LocalDate date = null;
 
         while (date == null) {
@@ -121,6 +135,9 @@ public class BudgetManagement {
             }
         }
         return date;
+    }
+    public static void printTransactions(){
+        repository.getTransactions().forEach(IO::println);
     }
 
     static void welcome() {
