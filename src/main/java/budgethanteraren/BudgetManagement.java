@@ -45,7 +45,7 @@ public class BudgetManagement {
         Category type = returnCategory();
         do{
             BigDecimal amount = returnAmount();
-            if (checkIfBalanceGoesUnderZero(amount)) {//kollar så att summan inte överstiger saldot på kontot.
+            if (isBalanceAboveOrEqualToZero(amount)) {//kollar så att summan inte överstiger saldot på kontot.
                 repository.addTransaction(new Transaction(date, type, amount, TransactionType.EXPENSE));
                 break;
             }
@@ -53,7 +53,7 @@ public class BudgetManagement {
                 IO.println("Beloppet kan inte överstiga saldot på kontot.");
         }while(true);
     }
-    static boolean checkIfBalanceGoesUnderZero(BigDecimal bigDecimal) {
+    static boolean isBalanceAboveOrEqualToZero(BigDecimal bigDecimal) {
 
        return bigDecimal.subtract(returnBalance()).compareTo(BigDecimal.ZERO) <= 0;
    }
@@ -154,4 +154,9 @@ public class BudgetManagement {
     public static void addTransaction(Transaction transaction){
         repository.addTransaction(transaction);
     }
+
+    public static void clearTransactions() {
+        repository.clear();
+    }
+
 }

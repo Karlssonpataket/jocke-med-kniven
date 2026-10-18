@@ -11,6 +11,8 @@ class BudgetManagementTest {
 
     @Test
     void returnBalanceShouldReturnCorrectBalance() {
+        BudgetManagement.clearTransactions();
+        
          BudgetManagement.addTransaction(new Transaction
                     (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(100),TransactionType.INCOME));
          BudgetManagement.addTransaction(new Transaction
@@ -20,12 +22,16 @@ class BudgetManagementTest {
         }
 
 
-    @Test
-    void inserNewTransactioExpense1() {
-    }
 
     @Test
-    void checkIfBalanceGoesUnderZero1() {
+    void checkisBalanceAboveOrEqualToZeroReturnFalse() {
+        BudgetManagement.clearTransactions();
+
+        BudgetManagement.addTransaction(new Transaction
+                    (LocalDate.now(),Category.HOME_AND_LIVING,new BigDecimal(50),TransactionType.INCOME));
+
+        assertFalse(BudgetManagement.isBalanceAboveOrEqualToZero(BigDecimal.valueOf(50.1)));
+
     }
 
     @Test

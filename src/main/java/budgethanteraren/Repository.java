@@ -17,4 +17,7 @@ public class Repository<T> {
     public void removeTransaction(T transaction) {
         transactions.remove(transaction);
     }
+    public void clear() {
+        this.transactions.clear();
+    }
 }
