@@ -2,7 +2,6 @@ package budgethanteraren;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -34,6 +33,14 @@ class BudgetManagementTest {
         assertFalse(BudgetManagement.isBalanceAboveOrEqualToZero(BigDecimal.valueOf(50.1)));
 
     }
+    @Test
+    void testWhenlistIsEmptyReturnZero() {
+        BudgetManagement.clearTransactions();
+
+        assertEquals(BigDecimal.ZERO, BudgetManagement.returnBalance());
+
+    }
+
     @Test
     void checkifBalanceAboveorEqualtoZeroReturnTrueWhenZero() {
         BudgetManagement.clearTransactions();
@@ -71,12 +78,37 @@ class BudgetManagementTest {
                 .returnBalancePerCategory(BudgetManagement
                         .filterTransactions(Category.HOME_AND_LIVING)));
     }
+
     @Test
     public void testifIsvalidBigDecimalTrowsNotPostitivBigDecimalException() {
         String userInput = "-1";
 
-      assertThrows(NotAPositivBigDecimal.class, () -> {
+        assertThrows(NotABigDecimalHigherOrEqualToZero.class, () -> {
             BudgetManagement.isValidBigDecimal(userInput);
         });
     }
+
+    @Test
+    void testifIsvalidBigDecimalTrowsNumberformatException() {
+        String userInput = "this is not a number";
+
+        assertThrows(NumberFormatException.class, () -> {
+            BudgetManagement.isValidBigDecimal(userInput);
+        });
+    }
+
+    @Test
+    void testifIsvalidBigDecimalreturnstrueWhenZero() {//Discovered an edge case with this test!
+        String userInput = "0";
+
+        assertTrue(BudgetManagement.isValidBigDecimal(userInput));
+    }
+
+    @Test
+    void testReturnAmountWhenPositive() {
+        String userInput = "1";
+
+        assertTrue(BudgetManagement.isValidBigDecimal(userInput));
+    }
+
 }

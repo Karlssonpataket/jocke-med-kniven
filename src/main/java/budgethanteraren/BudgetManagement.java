@@ -3,6 +3,7 @@ package budgethanteraren;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.List;
 
 public class BudgetManagement {
@@ -33,7 +34,7 @@ public class BudgetManagement {
                 if (isValidBigDecimal(test)) {
                     return new BigDecimal(test);
                 }
-            } catch (NotAPositivBigDecimal e) {
+            } catch (NotABigDecimalHigherOrEqualToZero e) {
                 IO.println("Ogiltigt belopp. Talet måste vara större än 0 (Noll).");
                 test = inputFromUser();
             }catch (NumberFormatException e) {
@@ -48,8 +49,8 @@ public class BudgetManagement {
 
     static Boolean isValidBigDecimal(String inputFromUser) {
         if (Double.parseDouble(inputFromUser) < 0){
-            throw new NotAPositivBigDecimal("Ogiltigt belopp. Försök igen.");
-        } else if (Double.parseDouble(inputFromUser) > 0)
+            throw new NotABigDecimalHigherOrEqualToZero("Ogiltigt belopp. Försök igen.");
+        } else if (Double.parseDouble(inputFromUser) >= 0)
             return true;
 
 
@@ -126,6 +127,7 @@ public class BudgetManagement {
         }
     }
 
+
     static LocalDate returndate() {
 
         while (true) {
@@ -163,8 +165,8 @@ public class BudgetManagement {
         return date;
     }
 
-    public static void printTransactions() {
-        repository.getTransactions().forEach(IO::println);
+    public static void printTransactions(List<Transaction> transactions) {
+        transactions.stream().forEach(IO::println);
     }
 
     static void welcome() {
@@ -212,5 +214,19 @@ public class BudgetManagement {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return sumIncome.subtract(sumExpense);
+    }
+
+    public static void sortByIncome(){
+        printTransactions( repository.returnsfilteredlist((n -> n.type().equals(TransactionType.INCOME))));
+
+    }
+    public static void sortByExpense(){
+        printTransactions( repository.returnsfilteredlist((n -> n.type().equals(TransactionType.EXPENSE))));
+    }
+    public static void sortByCategory(Category category){
+        printTransactions(repository.returnsfilteredlist((n -> n.category().equals(category))));
+    }
+    public static void sortBydate(){
+        printTransactions(repository.returnssortedlist(Comparator.comparing(Transaction::date)).reversed());
     }
 }
