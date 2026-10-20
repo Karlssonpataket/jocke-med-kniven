@@ -2,7 +2,9 @@ package budgethanteraren;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +34,16 @@ class BudgetManagementTest {
         assertFalse(BudgetManagement.isBalanceAboveOrEqualToZero(BigDecimal.valueOf(50.1)));
 
     }
+    @Test
+    void checkifBalanceAboveorEqualtoZeroReturnTrueWhenZero() {
+        BudgetManagement.clearTransactions();
+
+        BudgetManagement.addTransaction(new Transaction
+                (LocalDate.now(), Category.HOME_AND_LIVING, new BigDecimal(50.1), TransactionType.INCOME));
+
+        assertTrue(BudgetManagement.isBalanceAboveOrEqualToZero(BigDecimal.valueOf(50.1)));
+
+    }
 
     @Test
     void FiltertransactionsShouldReturntheRightCategoryofTransactions() {
@@ -58,5 +70,13 @@ class BudgetManagementTest {
         assertEquals(new BigDecimal(-39.5), BudgetManagement
                 .returnBalancePerCategory(BudgetManagement
                         .filterTransactions(Category.HOME_AND_LIVING)));
+    }
+    @Test
+    public void testifIsvalidBigDecimalTrowsNotPostitivBigDecimalException() {
+        String userInput = "-1";
+
+      assertThrows(NotAPositivBigDecimal.class, () -> {
+            BudgetManagement.isValidBigDecimal(userInput);
+        });
     }
 }

@@ -20,25 +20,41 @@ public class BudgetManagement {
     static void inserNewTransactionIncome() {
         LocalDate date = returndate();
         Category type = returnCategory();
-        BigDecimal amount = returnAmount();
+        BigDecimal amount = returnAmount(inputFromUser());
         TransactionType transactionType = TransactionType.INCOME;
         repository.addTransaction(new Transaction(date, type, amount, transactionType));
     }
 
-    static BigDecimal returnAmount() {
+    static BigDecimal returnAmount(String inputFromUser) {
+        String test = inputFromUser;
+
         while (true) {
             try {
-                String amountInput = IO.readln("Ange belopp: ");
-                if (Double.parseDouble(amountInput) > 0)
-                    return new BigDecimal(amountInput);
-                else
-                    IO.println("Ogiltigt belopp. Försök igen.");
-            } catch (NumberFormatException e) {
-                IO.println("Ogiltigt belopp. Försök igen.");
+                if (isValidBigDecimal(test)) {
+                    return new BigDecimal(test);
+                }
+            } catch (NotAPositivBigDecimal e) {
+                IO.println("Ogiltigt belopp. Talet måste vara större än 0 (Noll).");
+                test = inputFromUser();
+            }catch (NumberFormatException e) {
+                IO.println("Ogiltigt belopp. Endast siffror, inga bokstäver eller specialtecken.");
+                test = inputFromUser();
             }
         }
     }
+    public static String inputFromUser() {// I added this class so I could test the methods that uses user input.
+        return IO.readln("Ange belopp: ");
+    }
 
+    static Boolean isValidBigDecimal(String inputFromUser) {
+        if (Double.parseDouble(inputFromUser) < 0){
+            throw new NotAPositivBigDecimal("Ogiltigt belopp. Försök igen.");
+        } else if (Double.parseDouble(inputFromUser) > 0)
+            return true;
+
+
+        return false;
+    }
     static void inserNewTransactioExpense() {
         if (returnBalance().compareTo(BigDecimal.ZERO) == 0) {
             IO.println("Du har inget saldo på kontot. Försök igen.");
@@ -47,7 +63,7 @@ public class BudgetManagement {
         LocalDate date = returndate();
         Category type = returnCategory();
         do {
-            BigDecimal amount = returnAmount();
+            BigDecimal amount = returnAmount(inputFromUser());
             if (isBalanceAboveOrEqualToZero(amount)) {//kollar så att summan inte överstiger saldot på kontot.
                 repository.addTransaction(new Transaction(date, type, amount, TransactionType.EXPENSE));
                 break;
