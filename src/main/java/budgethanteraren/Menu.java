@@ -5,7 +5,7 @@ class Menu extends BudgetManagement{
         boolean run = true;
         do {
             IO.println("------------------------------------------------");
-            IO.println("1. Lagg till transaktion");
+            IO.println("1. Lägg till transaktion");
             IO.println("2. Visa alla transaktioner");
             IO.println("3. Visa saldo och sammanstallning per kategori");
             IO.println("4. Filtrera transaktioner");
