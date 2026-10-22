@@ -199,8 +199,24 @@ public class BudgetManagement {
     }
 
     public static void printTransactions(List<Transaction> transactions) {
-        transactions.stream().forEach(IO::println);
+        if (transactions == null || transactions.isEmpty()) {
+            System.out.println("Inga transaktioner att visa.");
+            return;
+        }
+        String line = "----------------------------------------------------";
+
+        IO.println(line);
+        IO.println(" Datum\t\tKategori \t\t Typ \t\t Belopp");
+        IO.println(line);
+
+        String text = transactions.stream()
+                .map(t -> t.date() + "  " + t.category().getDisplayName()+ "  " + t.type().getDisplayName()
+                + " \t " + t.amount() + " kr")
+                .collect(Collectors.joining("\n"));
+        IO.println(text);
+        IO.println(line);
     }
+
     static void printAllTransactions() {
         printTransactions(repository.getTransactions());
     }
@@ -344,7 +360,7 @@ public class BudgetManagement {
            logger.warning("Error while trying to write to file: " + e.getMessage() + e.getStackTrace());
 
         }
-
+        logger.info("The file was saved successfully");
 
     }
 }

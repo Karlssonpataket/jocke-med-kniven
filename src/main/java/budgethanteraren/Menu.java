@@ -7,14 +7,14 @@ class Menu extends BudgetManagement{ //extends Budgetmanagement so it can access
       static void menu() throws IOException {
         boolean run = true;
         do {
-            IO.println("------------------------------------------------");
+            IO.println("----------------------------------------------------");
             IO.println("1. Lägg till transaktion");
             IO.println("2. Visa alla transaktioner");
             IO.println("3. Visa saldo och sammanstallning per kategori");
             IO.println("4. Filtrera transaktioner");
             IO.println("5. Spara till fil");
             IO.println("e. Avsluta");
-            IO.println("------------------------------------------------");
+            IO.println("----------------------------------------------------");
 
             String choice = IO.readln("Vänligen välj ett av alternativen: ");
 
