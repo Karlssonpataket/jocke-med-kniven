@@ -1,8 +1,10 @@
 package budgethanteraren;
 
+import java.io.IOException;
+
 class Menu extends BudgetManagement{ //extends Budgetmanagement so it can access its methods without
     //typing "BudgetManagement.".
-      static void menu() {
+      static void menu() throws IOException {
         boolean run = true;
         do {
             IO.println("------------------------------------------------");

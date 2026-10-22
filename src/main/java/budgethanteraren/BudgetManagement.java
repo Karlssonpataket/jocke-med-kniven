@@ -5,15 +5,18 @@ import java.math.BigDecimal;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.stream.Collectors;
 
 public class BudgetManagement {
     private static Repository<Transaction> repository = new Repository<>();
@@ -34,18 +37,11 @@ public class BudgetManagement {
         if (!Files.exists(filePath))
             createFile();
 
-        try{
-            readFromFile();
-
-        }catch (RuntimeException e){
-            logger.warning("Error While reading file: " + e.getMessage());
-        }
-
+        readFromFile();
 
         welcome();
         Menu.menu();
 
-        IO.println(repository.getTransactions());
 
 
     }
@@ -270,7 +266,7 @@ public class BudgetManagement {
         printTransactions(repository.returnssortedlist(Comparator.comparing(Transaction::date)).reversed());
     }
     static void createFile() throws IOException {
-        logger.info("Trying to ceate file");
+        logger.info("Trying to create file");
 
 
         try {
@@ -298,11 +294,56 @@ public class BudgetManagement {
                             new BigDecimal(transactioninfo[2]),TransactionType.valueOf(transactioninfo[3]))).forEach(repository::addTransaction);
 
         } catch (IOException e) {
-            logger.warning("Error while trying to read file: " + e.getMessage());
+            logger.warning("Error while trying to read file: " + e.getMessage() );
+            IO.println("Error reading file: ");
+            optionCreateNewFile();
+            return;
         }
         logger.info("Reading from file successful");
     }
-    static void saveToFile(){
+
+    static void optionCreateNewFile() {
+        String choice = IO.readln("Do you want to create a new file? OBS: IF YES ALL DATA WILL BE LOST! (y/n)");
+       do{
+           switch (choice) {
+               case "y", "Y" -> {
+                   try {
+
+                       Files.write(filePath, Collections.emptyList(), StandardOpenOption.TRUNCATE_EXISTING);
+                   } catch (IOException e) {
+                       logger.warning("Error while trying to erase file: " + e.getMessage());
+                   }
+               }
+               case "n", "N" -> {
+                   return;
+               }
+               default -> IO.println("Invalid choice");
+           }
+       }while(true);
+    }
+
+
+    static void saveToFile() throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            List<Transaction> transactionsToSave = repository.getTransactions();
+
+            List<String> lines = transactionsToSave.stream()
+                    .map(transactioninfo -> String.format("%s,%s,%s,%s",
+                            transactioninfo.date().format(formatter),
+                            transactioninfo.category().name(),
+                            transactioninfo.amount().toString(),
+                            transactioninfo.type().name()))
+                    .collect(Collectors.toList());
+
+
+            Files.write(filePath, lines);
+
+        } catch (IOException e) {
+           logger.warning("Error while trying to write to file: " + e.getMessage() + e.getStackTrace());
+
+        }
 
 
     }
