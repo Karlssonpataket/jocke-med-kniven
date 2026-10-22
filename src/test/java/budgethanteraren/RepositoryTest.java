@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -63,5 +64,63 @@ class RepositoryTest {
 
         assertEquals(2, repository.getTransactions().size());
     }
+    @Test
+    void returnssortedlistShouldSortByAmountAscending() {
+        Repository<Transaction> repository = new Repository<>();
+        Transaction big = new Transaction
+                (LocalDate.now(),Category.SALARY,new BigDecimal(25000),TransactionType.INCOME);
+        Transaction small = new Transaction
+                (LocalDate.now(),Category.AMUSEMENT,new BigDecimal(200),TransactionType.EXPENSE);
+        Transaction medium = new Transaction
+                (LocalDate.now(),Category.TRAVEL,new BigDecimal(500),TransactionType.EXPENSE);
+        repository.addTransaction(big);
+        repository.addTransaction(small);
+        repository.addTransaction(medium);
 
+        List<Transaction> result = repository.returnssortedlist(Comparator.comparing(Transaction::amount));
+
+        assertEquals(List.of(small, medium, big), result);
+    }
+
+    @Test
+    void returnssortedlistShouldSortByDateDescending() {
+        Repository<Transaction> repository = new Repository<>();
+        Transaction oldest = new Transaction
+                (LocalDate.of(2024,1,1),Category.SALARY,new BigDecimal(25000),TransactionType.INCOME);
+        Transaction newest = new Transaction
+                (LocalDate.of(2024,3,1),Category.TRAVEL,new BigDecimal(500),TransactionType.EXPENSE);
+        Transaction middle = new Transaction
+                (LocalDate.of(2024,2,1),Category.AMUSEMENT,new BigDecimal(200),TransactionType.EXPENSE);
+        repository.addTransaction(oldest);
+        repository.addTransaction(newest);
+        repository.addTransaction(middle);
+
+        List<Transaction> result = repository.returnssortedlist(Comparator.comparing(Transaction::date).reversed());
+
+        assertEquals(List.of(newest, middle, oldest), result);
+    }
+
+    @Test
+    void returnssortedlistShouldReturnEmptyListWhenRepositoryIsEmpty() {
+        Repository<Transaction> repository = new Repository<>();
+
+        List<Transaction> result = repository.returnssortedlist(Comparator.comparing(Transaction::amount));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void returnssortedlistShouldNotModifyOriginalList() {
+        Repository<Transaction> repository = new Repository<>();
+        Transaction big = new Transaction
+                (LocalDate.now(),Category.SALARY,new BigDecimal(25000),TransactionType.INCOME);
+        Transaction small = new Transaction
+                (LocalDate.now(),Category.TRAVEL,new BigDecimal(500),TransactionType.EXPENSE);
+        repository.addTransaction(big);
+        repository.addTransaction(small);
+
+        repository.returnssortedlist(Comparator.comparing(Transaction::amount));
+
+        assertEquals(List.of(big, small), repository.getTransactions());
+    }
 }

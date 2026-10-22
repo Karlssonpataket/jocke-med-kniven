@@ -29,6 +29,7 @@ class BudgetManagementTest {
 
         assertEquals(new BigDecimal(-50), BudgetManagement.returnBalance());
     }
+
     @Test
     void checkisBalanceAboveOrEqualToZeroReturnFalse() {
         BudgetManagement.clearTransactions();
