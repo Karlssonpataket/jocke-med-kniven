@@ -3,7 +3,6 @@ package budgethanteraren;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,17 +11,24 @@ class BudgetManagementTest {
 
     @Test
     void returnBalanceShouldReturnCorrectBalance() {
-        BudgetManagement.clearTransactions();
+        BudgetManagement.clearTransactions();//Clears Transactions in case some data is left over from previous tests.
 
         BudgetManagement.addTransaction(new Transaction
-                (LocalDate.now(), Category.HOME_AND_LIVING, new BigDecimal(100), TransactionType.INCOME));
+                (LocalDate.now(), Category.SALARY, new BigDecimal(100), TransactionType.INCOME));
         BudgetManagement.addTransaction(new Transaction
                 (LocalDate.now(), Category.HOME_AND_LIVING, new BigDecimal(50), TransactionType.EXPENSE));
 
         assertEquals(new BigDecimal(50), BudgetManagement.returnBalance());
     }
+    @Test
+    void checkBalanceWhenOnlyOneExpenseInput() {
+        BudgetManagement.clearTransactions();
 
+        BudgetManagement.addTransaction(new Transaction
+                (LocalDate.now(), Category.TRAVEL, new BigDecimal(50), TransactionType.EXPENSE));
 
+        assertEquals(new BigDecimal(-50), BudgetManagement.returnBalance());
+    }
     @Test
     void checkisBalanceAboveOrEqualToZeroReturnFalse() {
         BudgetManagement.clearTransactions();
@@ -34,7 +40,7 @@ class BudgetManagementTest {
 
     }
     @Test
-    void testWhenlistIsEmptyReturnZero() {
+    void testWhenlistIsEmptyReturnZeroAndNotNull() {
         BudgetManagement.clearTransactions();
 
         assertEquals(BigDecimal.ZERO, BudgetManagement.returnBalance());
@@ -80,10 +86,18 @@ class BudgetManagementTest {
     }
 
     @Test
-    public void testifIsvalidBigDecimalTrowsNotPostitivBigDecimalException() {
+    public void testifIsvalidBigDecimalTrowsNotABigDecimalAboveZeroException() {
         String userInput = "-1";
 
-        assertThrows(NotABigDecimalHigherOrEqualToZero.class, () -> {
+        assertThrows(NotABigDecimalAboveZero.class, () -> {
+            BudgetManagement.isValidBigDecimal(userInput);
+        });
+    }
+    @Test
+    public void testIfISvalidBigDecimalTrowsNotABigDecimalAboveZeroExceptionWhenZero() {//Edge Test.
+        String userInput = "0";
+
+        assertThrows(NotABigDecimalAboveZero.class, () -> {
             BudgetManagement.isValidBigDecimal(userInput);
         });
     }
@@ -98,8 +112,8 @@ class BudgetManagementTest {
     }
 
     @Test
-    void testifIsvalidBigDecimalreturnstrueWhenZero() {//Discovered an edge case with this test!
-        String userInput = "0";
+    void testifIsvalidBigDecimalreturnstrueWhenaboveZero() {//Discovered an edge case with this test!
+        String userInput = "0.000001";
 
         assertTrue(BudgetManagement.isValidBigDecimal(userInput));
     }

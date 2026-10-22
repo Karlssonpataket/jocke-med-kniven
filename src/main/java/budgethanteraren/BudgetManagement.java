@@ -1,15 +1,47 @@
 package budgethanteraren;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class BudgetManagement {
     private static Repository<Transaction> repository = new Repository<>();
+    private static Logger logger = Logger.getLogger(BudgetManagement.class.getName());
+    private static Path filePath;
+    void main() throws IOException {
 
-    void main() {
+        String homeFolder = System.getProperty("user.home");
+        Path homePath = Path.of(homeFolder);
+        filePath = homePath.resolve("Budgethanteraren", "Transaktioner.csv");
+
+        logger.setLevel(Level.INFO);
+        FileHandler fileHandler = new FileHandler("application.log", true);
+        fileHandler.setFormatter(new SimpleFormatter());
+        logger.addHandler(fileHandler);
+        logger.setUseParentHandlers(false);
+
+        if (!Files.exists(filePath))
+            createFile();
+
+        try{
+            readFromFile();
+
+        }catch (RuntimeException e){
+            logger.warning("Error While reading file: " + e.getMessage());
+        }
+
+
         welcome();
         Menu.menu();
 
@@ -31,13 +63,18 @@ public class BudgetManagement {
 
         while (true) {
             try {
+
                 if (isValidBigDecimal(test)) {
+                    logger.info("Parsing succesfull to BigDecimal > 0: " + test);
                     return new BigDecimal(test);
                 }
-            } catch (NotABigDecimalHigherOrEqualToZero e) {
+            } catch (NotABigDecimalAboveZero e) {
+                logger.warning("Parsing failed NotABigDecimalAboveZero: " + test);
                 IO.println("Ogiltigt belopp. Talet måste vara större än 0 (Noll).");
                 test = inputFromUser();
+
             }catch (NumberFormatException e) {
+                logger.warning("Parsing failed NumberFormatException: " + test);
                 IO.println("Ogiltigt belopp. Endast siffror, inga bokstäver eller specialtecken.");
                 test = inputFromUser();
             }
@@ -48,9 +85,9 @@ public class BudgetManagement {
     }
 
     static Boolean isValidBigDecimal(String inputFromUser) {
-        if (Double.parseDouble(inputFromUser) < 0){
-            throw new NotABigDecimalHigherOrEqualToZero("Ogiltigt belopp. Försök igen.");
-        } else if (Double.parseDouble(inputFromUser) >= 0)
+        if (Double.parseDouble(inputFromUser) <= 0){
+            throw new NotABigDecimalAboveZero("Beloppet måste vara större än 0 (noll).");
+        } else if (Double.parseDouble(inputFromUser) > 0)
             return true;
 
 
@@ -168,6 +205,9 @@ public class BudgetManagement {
     public static void printTransactions(List<Transaction> transactions) {
         transactions.stream().forEach(IO::println);
     }
+    static void printAllTransactions() {
+        printTransactions(repository.getTransactions());
+    }
 
     static void welcome() {
         IO.println("------------------------------------------");
@@ -229,4 +269,43 @@ public class BudgetManagement {
     public static void sortBydate(){
         printTransactions(repository.returnssortedlist(Comparator.comparing(Transaction::date)).reversed());
     }
+    static void createFile() throws IOException {
+        logger.info("Trying to ceate file");
+
+
+        try {
+            Files.createFile(filePath);
+
+        } catch (FileAlreadyExistsException e) {
+            logger.info("File " + filePath + " already exists");
+        } catch (IOException e) {
+            logger.warning("Error creating file: " + e.getMessage());
+            IO.println("Error creating file: " + e.getMessage());
+        }
+
+
+    }
+    static void readFromFile(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+        try {
+            Files.lines(filePath)
+                    .map(line -> line.trim().split(","))
+                    .map(transactioninfo -> new Transaction(
+                            LocalDate.parse(transactioninfo[0],formatter),
+                            Category.valueOf(transactioninfo[1]),
+                            new BigDecimal(transactioninfo[2]),TransactionType.valueOf(transactioninfo[3]))).forEach(repository::addTransaction);
+
+        } catch (IOException e) {
+            logger.warning("Error while trying to read file: " + e.getMessage());
+        }
+        logger.info("Reading from file successful");
+    }
+    static void saveToFile(){
+
+
+    }
 }
+
+

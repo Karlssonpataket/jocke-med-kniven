@@ -1,6 +1,7 @@
 package budgethanteraren;
 
-class Menu extends BudgetManagement{
+class Menu extends BudgetManagement{ //extends Budgetmanagement so it can access its methods without
+    //typing "BudgetManagement.".
       static void menu() {
         boolean run = true;
         do {
@@ -17,10 +18,10 @@ class Menu extends BudgetManagement{
 
             switch (choice) {
                 case "1" -> subMenuWichTypeOfTransaction();
-                case "2" -> IO.println("Working on in");
+                case "2" -> printAllTransactions();
                 case "3" -> printBalanceAndTransactions();
                 case "4" -> submenuWhichKinOfFilter();
-                case "5" -> IO.println("Not yet implemented");
+                case "5" -> saveToFile();
                 case "E", "e" -> run = false;
                 default -> IO.println("Ogiltigt val, försök igen.");
 
@@ -51,7 +52,7 @@ class Menu extends BudgetManagement{
         }while(run);
     }
     private static void submenuWhichKinOfFilter() {
-        Boolean run = true;
+        boolean run = true;
         do{
             IO.println("1. Visa Transaktioner sorterat efter datum");
             IO.println("2. visa enbart utgifter");
@@ -62,19 +63,19 @@ class Menu extends BudgetManagement{
 
             switch (choice) {
                 case "1" -> {
-                    BudgetManagement.sortBydate();
+                    sortBydate();
                     run = false;
                 }
                 case "2" -> {
-                    BudgetManagement.sortByExpense();
+                    sortByExpense();
                     run = false;
                 }case "3" -> {
-                    BudgetManagement.sortByIncome();
+                    sortByIncome();
                     run = false;
                 }
                 case "4" -> {
-                    Category categorychoice = BudgetManagement.returnCategory();
-                    BudgetManagement.sortByCategory(categorychoice);
+                    Category categorychoice = returnCategory();
+                    sortByCategory(categorychoice);
                     run = false;
                 }
                 default -> IO.println("Ogiltigt val, försök igen.");
